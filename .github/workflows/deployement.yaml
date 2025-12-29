@@ -1,0 +1,228 @@
+# name: Olusola backend nprolusolaFrontend CI/CD
+
+# on:
+#   push:
+#     branches:
+#       - main
+#   pull_request:
+#     branches:
+#       - main
+
+# jobs:
+#   integration:
+#     runs-on: ubuntu-latest
+
+#     # Add PostgreSQL service
+#     services:
+#       postgres:
+#         image: postgres:latest
+#         env:
+#           POSTGRES_DB: test_db
+#           POSTGRES_USER: test_user
+#           POSTGRES_PASSWORD: test_password
+#         ports:
+#           - 5432:5432
+#         # Add health check to ensure postgres is ready
+#         options: >-
+#           --health-cmd pg_isready
+#           --health-interval 10s
+#           --health-timeout 5s
+#           --health-retries 5
+
+#     defaults:
+#       run:
+#         working-directory: ./
+
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v3
+
+#       - name: Setup Python
+#         uses: actions/setup-python@v1
+#         with:
+#           python-version: "3.10"
+
+#       - uses: actions/cache@v3
+#         id: cache
+#         with:
+#           path: ~/.cache/pip
+#           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.*') }}
+#           restore-keys: |
+#             ${{ runner.os }}-pip-
+
+#       - name: Install packages requirements
+#         run: |
+#           pip install -r requirements/testing.txt
+#       - name: Run database migrations
+#         env:
+#           DB_USER: test_user
+#           DB_PASSWORD: test_password
+#           DB_HOST: localhost
+#           DB_DRIVER: postgresql+asyncpg
+#           DB_PORT: 5432
+#           DB_NAME: test_db
+#         run: |
+#           edgy migrate
+
+#       - name: Run integration tests
+#         env:
+#           DB_USER: test_user
+#           DB_PASSWORD: test_password
+#           DB_HOST: localhost
+#           DB_DRIVER: postgresql+asyncpg
+#           DB_PORT: 5432
+#           DB_NAME: test_db
+
+#         run: |
+#           pytest tests/integration
+
+#   deploy:
+#     name: Olusola website Deployment
+#     # needs: integration # Only deploy if integration tests pass
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v2
+
+#       - name: Execute remote SSH commands using password
+#         uses: appleboy/ssh-action@v1.0.3
+#         with:
+#           host: ${{ secrets.SERVER_HOST }}
+#           username: ${{ secrets.SERVER_USERNAME }}
+#           password: ${{ secrets.SERVER_PASSWORD }}
+#           script: |
+#             cd ~/domains/api.olusolaowonikoko.com/public_html
+#             source ./venv/bin/activate
+#             git pull origin main
+#             pip install -r requirements/base.txt
+#             edgy migrate
+#             pm2 reload ${{ secrets.SERVICE_NAME }}
+
+
+name: Olusola Backend nprOlusola Frontend CI/CD
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:latest
+        env:          
+          POSTGRES_DB: "nprOlusolaBe"
+          POSTGRES_USER: "postgres"
+          POSTGRES_PASSWORD: "testing_db"
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    defaults:
+      run:
+        working-directory: ./
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: "3.10"
+
+      - name: Cache Dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.*') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install Requirements
+        run: |
+          pip install -r requirements/testing.txt
+
+      - name: Set Environment Variables
+        run: |
+          echo "EDGY_DEFAULT_APP=nprOlusolaBe.main" >> $GITHUB_ENV
+          echo "DEBUG=True" >> $GITHUB_ENV
+          echo "ENViRONMENT=development" >> $GITHUB_ENV
+          echo "PROJECT_URL=http://olusolaowonikoko.com" >> $GITHUB_ENV
+          echo "ALLOW_ORIGINS=[\"*\"]" >> $GITHUB_ENV
+          echo "SMTP_HOST=smtppro.zoho.com" >> $GITHUB_ENV
+          echo "SMTP_PORT=587" >> $GITHUB_ENV
+          echo "SMTP_USERNAME=contact@nivabit.com" >> $GITHUB_ENV
+          echo "SMTP_PASSWORD=@bigAnimalFarm24." >> $GITHUB_ENV
+          echo "CONTACT_EMAIL=support@nivabit.com" >> $GITHUB_ENV
+          echo "CONTACT_NAME=Nivabit(Olusola)" >> $GITHUB_ENV
+          echo "PAYSTACK_SECRET_KEY=sk_test_1fa397149d1e9391a34d25ab5b3e76454a41f4e1" >> $GITHUB_ENV
+          echo "PAYSTACK_PUBLIC_KEY=pk_test_5ab02c877fd5f05b762119ca97116086092ea917" >> $GITHUB_ENV
+          echo "AWS_REGION_NAME=US-central" >> $GITHUB_ENV
+          echo "AWS_ACCESS_KEY=4500b57347f7ad2685f1570c1aceb2c3" >> $GITHUB_ENV
+          echo "AWS_SECRET_KEY=810af07d05bd8407a61db833247815db" >> $GITHUB_ENV
+          echo "AWS_ENDPOINT_URL=https://usc1.contabostorage.com/521bd5d61433494fa7ca4eef9e93c658:olsuola-website" >> $GITHUB_ENV
+          echo "AWS_BUCKET_NAME=olsuola-website" >> $GITHUB_ENV
+          echo "EDGY_SETTINGS_MODULE=nprOlusolaBe.configs.migration_settings.MigrationSettings" >> $GITHUB_ENV
+          echo "DB_HOST=localhost" >> $GITHUB_ENV
+          echo "DB_PORT=5432" >> $GITHUB_ENV
+          echo "DB_USER=postgres" >> $GITHUB_ENV
+          echo "DB_PASSWORD=testing_db" >> $GITHUB_ENV
+          echo "DB_DRIVER=postgresql+asyncpg" >> $GITHUB_ENV
+          echo "DB_NAME=nprOlusolaBe" >> $GITHUB_ENV
+
+      - name: Run Database Migrations
+        env:
+          DB_USER: ${{ env.DB_USER }}
+          DB_PASSWORD: ${{ env.DB_PASSWORD }}
+          DB_HOST: ${{ env.DB_HOST }}
+          DB_PORT: ${{ env.DB_PORT }}
+          DB_DRIVER: ${{ env.DB_DRIVER }}
+          DB_NAME: ${{ env.DB_NAME }}
+        run: |
+          edgy migrate
+
+      - name: Run Integration Tests
+        env:
+          DB_USER: ${{ env.DB_USER }}
+          DB_PASSWORD: ${{ env.DB_PASSWORD }}
+          DB_HOST: ${{ env.DB_HOST }}
+          DB_PORT: ${{ env.DB_PORT }}
+          DB_DRIVER: ${{ env.DB_DRIVER }}
+          DB_NAME: ${{ env.DB_NAME }}
+        run: |
+          pytest .
+  deploy:
+    name: Olusola Website Deployment
+    runs-on: ubuntu-latest
+    needs: 
+      - integration
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Deploy Application
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          script: |
+            cd ~/domains/api.olusolaowonikoko.com/public_html
+            source ./venv/bin/activate
+            git pull origin main
+            pip install -r requirements/base.txt
+            edgy migrate
+            pm2 reload ${{ secrets.SERVICE_NAME }}

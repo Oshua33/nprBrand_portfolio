@@ -1,0 +1,16 @@
+app_models = (
+    "nprOlusolaBe.apps.account.models",
+    "nprOlusolaBe.apps.blog.models",
+    "nprOlusolaBe.apps.cart.models",
+    "nprOlusolaBe.apps.contact.models",
+    "nprOlusolaBe.apps.event.models",
+    "nprOlusolaBe.apps.gallery.models",
+    "nprOlusolaBe.apps.label.models",
+    "nprOlusolaBe.apps.media.models",
+    "nprOlusolaBe.apps.news_letter.models",
+    "nprOlusolaBe.apps.orders.models",
+    "nprOlusolaBe.apps.payment.models",
+    "nprOlusolaBe.apps.product.models",
+    "nprOlusolaBe.apps.reviews.models",
+    "nprOlusolaBe.apps.testimonials.models",
+)
